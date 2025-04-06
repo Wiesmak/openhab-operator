@@ -27,7 +27,7 @@ components:
 
   - name: operator-sdk-install
     container:
-      image: registry.access.redhat.com/ubi8/ubi
+      image: registry.access.redhat.com/ubi9/ubi
       command:
         - sh
         - -c
