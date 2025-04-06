@@ -36,46 +36,19 @@ components:
       cpuRequest: 100m
 
 commands:
-  - id: install-operator-sdk-mkdir
+  - id: install-operator-sdk
     exec:
       component: operator-sdk-install
-      commandLine: "mkdir -p /home/user/.local/bin"
-      group:
-        kind: build
-  - id: install-operator-sdk-export
-    exec:
-      component: operator-sdk-install
-      commandLine: "export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac) OS=$(uname | awk '{print tolower($0)}')"
-      group:
-        kind: build
-  - id: install-operator-sdk-set-url
-    exec:
-      component: operator-sdk-install
-      commandLine: "export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2"
-      group:
-        kind: build
-  - id: install-operator-sdk-download
-    exec:
-      component: operator-sdk-install
-      commandLine: "curl -L ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH} -o /home/user/.local/bin/operator-sdk"
-      group:
-        kind: build
-  - id: install-operator-sdk-chmod
-    exec:
-      component: operator-sdk-install
-      commandLine: "chmod +x /home/user/.local/bin/operator-sdk"
+      commandLine: |
+        mkdir -p /home/user/.local/bin && \
+        ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac) && \
+        OS=$(uname | awk '{print tolower($0)}') && \
+        OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2 && \
+        curl -L ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH} -o /home/user/.local/bin/operator-sdk && \
+        chmod +x /home/user/.local/bin/operator-sdk
       group:
         kind: build
         isDefault: true
-  - id: install-operator-sdk
-    composite:
-      commands:
-        - install-operator-sdk-mkdir
-        - install-operator-sdk-export
-        - install-operator-sdk-set-url
-        - install-operator-sdk-download
-        - install-operator-sdk-chmod
-      parallel: false
 
 events:
   postStart:
