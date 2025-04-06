@@ -28,34 +28,54 @@ components:
   - name: operator-sdk-install
     container:
       image: registry.access.redhat.com/ubi9/ubi
-      command:
-        - sh
-        - -c
-      args:
-        - |
-          set -ex
-          mkdir -p /home/user/.local/bin
-          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-          export OS=$(uname | awk '{print tolower($0)}')
-          export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2
-          curl -L ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH} -o /home/user/.local/bin/operator-sdk
-          chmod +x /home/user/.local/bin/operator-sdk
       mountSources: true
       env:
         - name: PATH
           value: /home/user/.local/bin:$PATH
       memoryRequest: 128Mi
       cpuRequest: 100m
-      dedicatedPod: true
 
 commands:
-  - id: install-operator-sdk
+  - id: install-operator-sdk-mkdir
     exec:
       component: operator-sdk-install
-      commandLine: echo 'operator-sdk installed to /home/user/.local/bin'
+      commandLine: "mkdir -p /home/user/.local/bin"
+      group:
+        kind: build
+  - id: install-operator-sdk-export
+    exec:
+      component: operator-sdk-install
+      commandLine: "export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac) OS=$(uname | awk '{print tolower($0)}')"
+      group:
+        kind: build
+  - id: install-operator-sdk-set-url
+    exec:
+      component: operator-sdk-install
+      commandLine: "export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2"
+      group:
+        kind: build
+  - id: install-operator-sdk-download
+    exec:
+      component: operator-sdk-install
+      commandLine: "curl -L ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH} -o /home/user/.local/bin/operator-sdk"
+      group:
+        kind: build
+  - id: install-operator-sdk-chmod
+    exec:
+      component: operator-sdk-install
+      commandLine: "chmod +x /home/user/.local/bin/operator-sdk"
       group:
         kind: build
         isDefault: true
+    - id: install-operator-sdk
+    composite:
+      commands:
+        - install-operator-sdk-mkdir
+        - install-operator-sdk-export
+        - install-operator-sdk-set-url
+        - install-operator-sdk-download
+        - install-operator-sdk-chmod
+      parallel: false
 
 events:
   postStart:
