@@ -1,0 +1,73 @@
+schemaVersion: 2.2.0
+metadata:
+  name: intellij-operator-sdk
+  displayName: IntelliJ IDEA with Operator SDK
+  description: Devfile for OpenShift Dev Spaces using IntelliJ IDEA Ultimate and operator-sdk
+components:
+  - name: intellij
+    container:
+      image: 'quay.io/devspaces/udi-rhel9:latest'  # Or your custom IntelliJ Ultimate-enabled image
+      memoryRequest: 2Gi
+      memoryLimit: 6Gi
+      cpuRequest: 50m
+      cpuLimit: 500m
+      mountSources: true
+      volumeMounts:
+        - name: ssh-key
+          path: /home/user/.ssh
+      env:
+        - name: PATH
+          value: /home/user/.local/bin:$PATH
+      command:
+        - tail
+      args:
+        - -f
+        - /dev/null
+      endpoints:
+        - name: intellij
+          targetPort: 8080
+  - name: operator-sdk-install
+    container:
+      image: registry.access.redhat.com/ubi9/ubi
+      command:
+        - sh
+        - -c
+      args:
+        - |
+          set -ex
+          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
+          export OS=$(uname | awk '{print tolower($0)}')
+          export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2
+          curl -L ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH} -o /home/user/.local/bin/operator-sdk
+          chmod +x /home/user/.local/bin/operator-sdk
+      mountSources: true
+      volumeMounts:
+        - name: ssh-key
+          path: /home/user/.ssh
+      env:
+        - name: PATH
+          value: /home/user/.local/bin:$PATH
+      workingDir: /projects
+      memoryRequest: 128Mi
+      cpuRequest: 100m
+      dedicatedPod: true
+  - name: ssh-key
+    volume:
+      secret:
+        secretName: ssh-key-secret  # Your OpenShift secret with id_rsa
+        defaultMode: 0600
+
+commands:
+  - id: install-operator-sdk
+    exec:
+      component: operator-sdk-install
+      commandLine: |
+        /bin/sh -c "echo 'operator-sdk installed to /home/user/.local/bin'"
+      workingDir: /projects
+      group:
+        kind: build
+        isDefault: true
+
+events:
+  postStart:
+    - install-operator-sdk
