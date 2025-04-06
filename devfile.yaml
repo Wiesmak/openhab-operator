@@ -16,14 +16,6 @@ components:
       env:
         - name: PATH
           value: /home/user/.local/bin:$PATH
-      command:
-        - tail
-      args:
-        - -f
-        - /dev/null
-      endpoints:
-        - name: intellij
-          targetPort: 8080
 
   - name: operator-sdk-install
     container:
