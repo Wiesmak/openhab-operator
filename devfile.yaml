@@ -4,11 +4,6 @@ metadata:
   displayName: IntelliJ IDEA with Operator SDK
   description: Devfile for OpenShift Dev Spaces using IntelliJ IDEA Ultimate and operator-sdk
 components:
-  - name: intellij
+  - name: operator-sdk
     container:
       image: 'quay.io/operator-framework/operator-sdk:latest'
-      memoryRequest: 2Gi
-      memoryLimit: 6Gi
-      cpuRequest: 50m
-      cpuLimit: 500m
-      mountSources: true
