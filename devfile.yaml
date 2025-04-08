@@ -1,9 +1,0 @@
-schemaVersion: 2.2.0
-metadata:
-  name: intellij-operator-sdk
-  displayName: IntelliJ IDEA with Operator SDK
-  description: Devfile for OpenShift Dev Spaces using IntelliJ IDEA Ultimate and operator-sdk
-components:
-  - name: operator-sdk
-    container:
-      image: 'quay.io/operator-framework/operator-sdk:latest'
