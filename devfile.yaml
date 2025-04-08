@@ -3,13 +3,6 @@ metadata:
   name: intellij-operator-sdk
   displayName: IntelliJ IDEA with Operator SDK
   description: Devfile for OpenShift Dev Spaces using IntelliJ IDEA Ultimate and operator-sdk
-projects:
-  - name: openhab-operator
-    git:
-      remotes:
-        origin: "git@github.com:Wiesmak/openhab-operator.git"
-      checkoutFrom:
-        revision: master
 components:
   - name: intellij
     container:
