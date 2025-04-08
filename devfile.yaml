@@ -31,7 +31,10 @@ commands:
   - id: install-operator-sdk
     exec:
       component: operator-sdk-install
-      commandLine: "curl -L https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2/operator-sdk_linux_amd64 -o /home/user/.local/bin/operator-sdk"
+      commandLine: >
+        mkdir -p /home/user/.local/bin &&
+        curl -L https://github.com/operator-framework/operator-sdk/releases/download/v1.39.2/operator-sdk_linux_amd64 -o /home/user/.local/bin/operator-sdk &&
+        chmod +x /home/user/.local/bin/operator-sdk
       group:
         kind: build
         isDefault: true
